@@ -16,6 +16,7 @@ import { useApp } from '@/context/app-context'
 import { getNextQuestion } from '@/services/api'
 import { ErrorState } from '@/components/error-state'
 import { useRouter } from 'expo-router'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function QuestionScreen() {
   const router = useRouter()
@@ -23,6 +24,7 @@ export default function QuestionScreen() {
   const [question, setQuestion] = useState<Question | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const insets = useSafeAreaInsets()
 
   const fadeAnim = useRef(new Animated.Value(0)).current
 
@@ -130,7 +132,12 @@ export default function QuestionScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+      <Animated.View
+        style={{
+          flex: 1,
+          opacity: fadeAnim,
+          paddingBottom: insets.bottom + 16,
+        }}>
         <View style={styles.questionContainer}>
           <Text style={styles.questionText} numberOfLines={2}>
             {question.question_text}
@@ -174,10 +181,9 @@ const styles = StyleSheet.create({
     lineHeight: 36,
   },
   optionsWrapper: {
-    flex: 1,
-    justifyContent: 'space-between',
+    flexGrow: 1,
+    justifyContent: 'space-evenly',
     paddingHorizontal: 16,
-    paddingBottom: 16,
   },
   optionContainer: {
     flex: 1,

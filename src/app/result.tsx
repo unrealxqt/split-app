@@ -143,9 +143,11 @@ export default function ResultScreen() {
               {result.option_a_percentage.toFixed(0)}%
             </Text>
             <PercentageBar percentage={result.option_a_percentage} animated />
-            <Text style={styles.voteCount}>
-              {result.option_a_votes.toLocaleString()} votes
-            </Text>
+            {result.option_a_votes >= 1000 && (
+              <Text style={styles.voteCount}>
+                {result.option_a_votes.toLocaleString()} votes
+              </Text>
+            )}
           </View>
 
           <View
@@ -161,14 +163,18 @@ export default function ResultScreen() {
               {result.option_b_percentage.toFixed(0)}%
             </Text>
             <PercentageBar percentage={result.option_b_percentage} animated />
-            <Text style={styles.voteCount}>
-              {result.option_b_votes.toLocaleString()} votes
-            </Text>
+            {result.option_b_votes >= 1000 && (
+              <Text style={styles.voteCount}>
+                {result.option_b_votes.toLocaleString()} votes
+              </Text>
+            )}
           </View>
 
-          <Text style={styles.totalVotes}>
-            {result.total_votes.toLocaleString()} total votes
-          </Text>
+          {result.total_votes >= 1000 && (
+            <Text style={styles.totalVotes}>
+              {result.total_votes.toLocaleString()} total votes
+            </Text>
+          )}
         </View>
       </Animated.View>
 
