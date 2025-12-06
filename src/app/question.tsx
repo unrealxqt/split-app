@@ -1,7 +1,14 @@
-import { View, Text, StyleSheet, Animated, Button } from 'react-native';
-import { useRouter } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
-import type { Question } from '@/types';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Animated,
+  Pressable,
+  SafeAreaView,
+} from 'react-native'
+import { useRouter } from 'expo-router'
+import React, { useEffect, useRef, useState } from 'react'
+import type { Question } from '@/types'
 import { LoadingSpinner } from '@/components/loading-spinner'
 import { theme } from '@/constants/theme'
 import { useApp } from '@/context/app-context'
@@ -9,53 +16,52 @@ import { getNextQuestion } from '@/services/api'
 import { ErrorState } from '@/components/error-state'
 
 export default function QuestionScreen() {
-  const router = useRouter();
-  const { state } = useApp();
-  const [question, setQuestion] = useState<Question | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const router = useRouter()
+  const { state } = useApp()
+  const [question, setQuestion] = useState<Question | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const fadeAnim = useRef(new Animated.Value(0)).current
 
   const fetchQuestion = async () => {
     if (!state.deviceUuid) {
-      setError('Device not initialized');
-      setLoading(false);
-      return;
+      setError('Device not initialized')
+      setLoading(false)
+      return
     }
 
-    setLoading(true);
-    setError(null);
-    fadeAnim.setValue(0);
+    setLoading(true)
+    setError(null)
+    fadeAnim.setValue(0)
 
     try {
-      const nextQuestion = await getNextQuestion(state.deviceUuid);
-      
+      const nextQuestion = await getNextQuestion(state.deviceUuid)
       if (!nextQuestion) {
-        setQuestion(null);
+        setQuestion(null)
       } else {
-        setQuestion(nextQuestion);
+        setQuestion(nextQuestion)
         Animated.timing(fadeAnim, {
           toValue: 1,
           duration: 300,
           useNativeDriver: true,
-        }).start();
+        }).start()
       }
     } catch (err) {
-      console.error('Failed to fetch question:', err);
-      setError('Failed to load question. Please check your connection.');
+      console.error('Failed to fetch question:', err)
+      setError('Failed to load question. Please check your connection.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchQuestion();
-  }, [state.deviceUuid]);
+    if (!state.deviceUuid) return
+    fetchQuestion()
+  }, [state.deviceUuid])
 
   const handleVote = (option: 'A' | 'B') => {
-    if (!question || submitting) return;
+    if (!question) return
 
     router.push({
       pathname: '/result',
@@ -66,32 +72,29 @@ export default function QuestionScreen() {
         optionB: question.option_b,
         selectedOption: option,
       },
-    });
-  };
+    })
+  }
 
   const handleViewHistory = () => {
-    router.push('/history');
-  };
+    router.push('/history')
+  }
 
-  // Loading state
   if (loading) {
     return (
       <View style={styles.container}>
         <LoadingSpinner />
       </View>
-    );
+    )
   }
 
-  // Error state
   if (error) {
     return (
       <View style={styles.container}>
         <ErrorState message={error} onRetry={fetchQuestion} />
       </View>
-    );
+    )
   }
 
-  // No more questions
   if (!question) {
     return (
       <View style={styles.container}>
@@ -100,48 +103,39 @@ export default function QuestionScreen() {
           <Text style={styles.emptySubtitle}>
             All answers have been submitted. Thank you for participating!
           </Text>
-          <Button title="View Your History" onPress={handleViewHistory} />
+          <Pressable style={styles.bigButton} onPress={handleViewHistory}>
+            <Text style={styles.bigButtonText}>View Your History</Text>
+          </Pressable>
         </View>
       </View>
-    );
+    )
   }
 
-  // Main question screen
   return (
-    <View style={styles.container}>
-      <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
+    <SafeAreaView style={styles.container}>
+      <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
         <View style={styles.questionContainer}>
           <Text style={styles.questionText} numberOfLines={2}>
             {question.question_text}
           </Text>
         </View>
 
-        <View style={styles.optionsContainer}>
-          <Button
-            title={question.option_a}
-            onPress={() => handleVote('A')}
-            variant="primary"
-            style={styles.optionButton}
-          />
-          <Button
-            title={question.option_b}
-            onPress={() => handleVote('B')}
-            variant="primary"
-            style={styles.optionButton}
-          />
+        <View style={styles.optionsWrapper}>
+          <Pressable
+            style={[styles.optionContainer, styles.optionTop]}
+            onPress={() => handleVote('A')}>
+            <Text style={styles.optionText}>{question.option_a}</Text>
+          </Pressable>
+
+          <Pressable
+            style={[styles.optionContainer, styles.optionBottom]}
+            onPress={() => handleVote('B')}>
+            <Text style={styles.optionText}>{question.option_b}</Text>
+          </Pressable>
         </View>
       </Animated.View>
-
-      {/* Settings button top-right */}
-      <View style={styles.settingsContainer}>
-        <Button
-          title="⚙️"
-          onPress={() => router.push('/settings')}
-          variant="minimal"
-        />
-      </View>
-    </View>
-  );
+    </SafeAreaView>
+  )
 }
 
 const styles = StyleSheet.create({
@@ -149,27 +143,46 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.black,
   },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: theme.spacing.lg,
-  },
   questionContainer: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: theme.spacing.xl * 2,
   },
   questionText: {
     fontSize: 28,
-    fontWeight: '600',
+    fontWeight: '700',
     color: theme.colors.white,
     textAlign: 'center',
     lineHeight: 36,
   },
-  optionsContainer: {
-    gap: theme.spacing.lg,
+  optionsWrapper: {
+    flex: 1,
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingBottom: 16,
   },
-  optionButton: {
-    minHeight: 80,
+  optionContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 4,
+    borderRadius: 24,
+    backgroundColor: theme.colors.white,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  optionTop: {},
+  optionBottom: {},
+  optionText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: theme.colors.black,
+    textAlign: 'center',
+    paddingHorizontal: 16,
   },
   emptyContainer: {
     flex: 1,
@@ -181,19 +194,26 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '700',
     color: theme.colors.white,
-    marginBottom: theme.spacing.sm,
+    marginBottom: 16,
     textAlign: 'center',
   },
   emptySubtitle: {
     fontSize: 18,
     color: theme.colors.gray,
     textAlign: 'center',
-    marginBottom: theme.spacing.xl,
+    marginBottom: 32,
     lineHeight: 24,
   },
-  settingsContainer: {
-    position: 'absolute',
-    top: 60,
-    right: theme.spacing.lg,
+  bigButton: {
+    backgroundColor: theme.colors.white,
+    paddingVertical: 24,
+    paddingHorizontal: 48,
+    borderRadius: 32,
   },
-});
+  bigButtonText: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: theme.colors.black,
+    textAlign: 'center',
+  },
+})

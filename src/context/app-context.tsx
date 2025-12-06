@@ -15,13 +15,15 @@ interface AppState {
   isOnline: boolean;
   currentQuestion: Question | null;
   isLoading: boolean;
+  hasStartedGame: boolean;
 }
 
 type AppAction =
   | { type: 'SET_DEVICE_UUID'; payload: string }
   | { type: 'SET_ONLINE_STATUS'; payload: boolean }
   | { type: 'SET_CURRENT_QUESTION'; payload: Question | null }
-  | { type: 'SET_LOADING'; payload: boolean };
+  | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'SET_HAS_STARTED_GAME'; payload: boolean };
 
 interface AppContextType {
   state: AppState;
@@ -40,6 +42,8 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
       return { ...state, currentQuestion: action.payload };
     case 'SET_LOADING':
       return { ...state, isLoading: action.payload };
+    case 'SET_HAS_STARTED_GAME':
+      return { ...state, hasStartedGame: action.payload };
     default:
       return state;
   }
@@ -51,6 +55,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     isOnline: true,
     currentQuestion: null,
     isLoading: false,
+    hasStartedGame: false,
   });
 
   useEffect(() => {
