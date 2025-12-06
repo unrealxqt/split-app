@@ -1,5 +1,5 @@
-import { View, Text, StyleSheet, Animated, Button } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { View, Text, StyleSheet, Animated, Button, BackHandler } from 'react-native';
+import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import type { VoteResult } from '@/types';
 import { ErrorState } from '@/components/error-state';
@@ -28,6 +28,21 @@ export default function ResultScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const { questionId, selectedOption, optionA, optionB, questionText } = params;
+
+  const handleBackPress = () => {
+    router.replace('/menu')
+    return true
+  }
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const subscription = BackHandler.addEventListener(
+        'hardwareBackPress',
+        handleBackPress
+      )
+      return () => subscription.remove()
+    }, [])
+  )
 
   useEffect(() => {
     if (hasSubmitted) return;

@@ -5,8 +5,9 @@ import {
   Animated,
   Pressable,
   SafeAreaView,
+  BackHandler,
 } from 'react-native'
-import { useRouter } from 'expo-router'
+import { useFocusEffect } from '@react-navigation/native'
 import React, { useEffect, useRef, useState } from 'react'
 import type { Question } from '@/types'
 import { LoadingSpinner } from '@/components/loading-spinner'
@@ -14,6 +15,7 @@ import { theme } from '@/constants/theme'
 import { useApp } from '@/context/app-context'
 import { getNextQuestion } from '@/services/api'
 import { ErrorState } from '@/components/error-state'
+import { useRouter } from 'expo-router'
 
 export default function QuestionScreen() {
   const router = useRouter()
@@ -23,6 +25,21 @@ export default function QuestionScreen() {
   const [error, setError] = useState<string | null>(null)
 
   const fadeAnim = useRef(new Animated.Value(0)).current
+
+  const handleBackPress = () => {
+    router.replace('/menu')
+    return true
+  }
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const subscription = BackHandler.addEventListener(
+        'hardwareBackPress',
+        handleBackPress
+      )
+      return () => subscription.remove()
+    }, [])
+  )
 
   const fetchQuestion = async () => {
     if (!state.deviceUuid) {

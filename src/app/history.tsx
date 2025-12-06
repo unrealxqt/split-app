@@ -1,46 +1,79 @@
-import { View, Text, FlatList, StyleSheet, RefreshControl } from 'react-native';
-import { useEffect, useState } from 'react';
-import type { VoteHistoryItem } from '@/types';
+import { View, Text, FlatList, StyleSheet, RefreshControl } from 'react-native'
+import { useEffect, useState } from 'react'
+import type { VoteHistoryItem } from '@/types'
 import { theme } from '@/constants/theme'
 import { useApp } from '@/context/app-context'
 import { getVoteHistory } from '@/services/api'
 
 export default function HistoryScreen() {
-  const { state } = useApp();
-  const [history, setHistory] = useState<VoteHistoryItem[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { state } = useApp()
+  const [history, setHistory] = useState<VoteHistoryItem[]>([])
+  const [loading, setLoading] = useState(false)
 
   const loadHistory = async () => {
-    if (!state.deviceUuid) return;
-    setLoading(true);
+    if (!state.deviceUuid) return
+    setLoading(true)
     try {
-      const historyData = await getVoteHistory(state.deviceUuid);
-      setHistory(historyData);
+      const historyData = await getVoteHistory(state.deviceUuid)
+      setHistory(historyData)
     } catch (error) {
-      console.error('Failed to load history:', error);
+      console.error('Failed to load history:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
-    loadHistory();
-  }, [state.deviceUuid]);
+    loadHistory()
+  }, [state.deviceUuid])
 
   const renderItem = ({ item }: { item: VoteHistoryItem }) => (
     <View style={styles.item}>
       <Text style={styles.question}>{item.question_text}</Text>
-      <Text style={[
-        styles.choice, 
-        item.selected_option === 'A' ? styles.choiceA : styles.choiceB
-      ]}>
-        {item.selected_option === 'A' ? item.option_a : item.option_b}
-      </Text>
+
+      <View style={styles.optionsContainer}>
+        <View
+          style={[
+            styles.option,
+            item.selected_option === 'A'
+              ? styles.selectedOption
+              : styles.unselectedOption,
+          ]}>
+          <Text
+            style={[
+              styles.optionText,
+              item.selected_option === 'A'
+                ? styles.selectedOptionText
+                : styles.unselectedOptionText,
+            ]}>
+            {item.option_a}
+          </Text>
+        </View>
+
+        <View
+          style={[
+            styles.option,
+            item.selected_option === 'B'
+              ? styles.selectedOption
+              : styles.unselectedOption,
+          ]}>
+          <Text
+            style={[
+              styles.optionText,
+              item.selected_option === 'B'
+                ? styles.selectedOptionText
+                : styles.unselectedOptionText,
+            ]}>
+            {item.option_b}
+          </Text>
+        </View>
+      </View>
+
       <Text style={styles.date}>
         {new Date(item.voted_at).toLocaleDateString()}
       </Text>
     </View>
-  );
+  )
 
   return (
     <View style={styles.container}>
@@ -48,7 +81,7 @@ export default function HistoryScreen() {
         <Text style={styles.title}>Your Votes</Text>
         <Text style={styles.count}>{history.length} votes</Text>
       </View>
-      
+
       <FlatList
         data={history}
         renderItem={renderItem}
@@ -66,7 +99,7 @@ export default function HistoryScreen() {
         </View>
       )}
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -129,4 +162,35 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: theme.colors.gray,
   },
-});
+  optionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing.sm,
+  },
+  option: {
+    flex: 1,
+    padding: theme.spacing.sm,
+    borderRadius: theme.borderRadius.small,
+    marginHorizontal: theme.spacing.xs,
+    borderWidth: 1,
+    borderColor: theme.colors.gray,
+  },
+  selectedOption: {
+    backgroundColor: '#007AFF20',
+    borderColor: '#007AFF',
+  },
+  unselectedOption: {
+    backgroundColor: theme.colors.white,
+  },
+  optionText: {
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  selectedOptionText: {
+    color: '#007AFF',
+    fontWeight: '700',
+  },
+  unselectedOptionText: {
+    color: theme.colors.black,
+  },
+})
