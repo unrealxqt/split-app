@@ -1,5 +1,4 @@
 import { View, Text, FlatList, StyleSheet, RefreshControl } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import type { VoteHistoryItem } from '@/types';
 import { theme } from '@/constants/theme'
@@ -7,7 +6,6 @@ import { useApp } from '@/context/app-context'
 import { getVoteHistory } from '@/services/api'
 
 export default function HistoryScreen() {
-  const router = useRouter();
   const { state } = useApp();
   const [history, setHistory] = useState<VoteHistoryItem[]>([]);
   const [loading, setLoading] = useState(false);
