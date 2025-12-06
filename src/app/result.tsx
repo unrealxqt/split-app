@@ -1,33 +1,41 @@
-import { View, Text, StyleSheet, Animated, Button, BackHandler } from 'react-native';
-import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
-import type { VoteResult } from '@/types';
-import { ErrorState } from '@/components/error-state';
-import { LoadingSpinner } from '@/components/loading-spinner';
-import { theme } from '@/constants/theme';
-import { useApp } from '@/context/app-context';
-import { submitVote } from '@/services/api';
-import { PercentageBar } from '@/components/percentage-bar';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Animated,
+  Button,
+  BackHandler,
+  Pressable,
+} from 'react-native'
+import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router'
+import React, { useEffect, useRef, useState } from 'react'
+import type { VoteResult } from '@/types'
+import { ErrorState } from '@/components/error-state'
+import { LoadingSpinner } from '@/components/loading-spinner'
+import { theme } from '@/constants/theme'
+import { useApp } from '@/context/app-context'
+import { submitVote } from '@/services/api'
+import { PercentageBar } from '@/components/percentage-bar'
 
 export default function ResultScreen() {
-  const router = useRouter();
+  const router = useRouter()
   const params = useLocalSearchParams<{
-    questionId: string;
-    questionText: string;
-    optionA: string;
-    optionB: string;
-    selectedOption: 'A' | 'B';
-  }>();
+    questionId: string
+    questionText: string
+    optionA: string
+    optionB: string
+    selectedOption: 'A' | 'B'
+  }>()
 
-  const { state } = useApp();
-  const [result, setResult] = useState<VoteResult | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const { state } = useApp()
+  const [result, setResult] = useState<VoteResult | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [hasSubmitted, setHasSubmitted] = useState(false)
 
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current
 
-  const { questionId, selectedOption, optionA, optionB, questionText } = params;
+  const { questionId, selectedOption, optionA, optionB, questionText } = params
 
   const handleBackPress = () => {
     router.replace('/menu')
@@ -45,50 +53,50 @@ export default function ResultScreen() {
   )
 
   useEffect(() => {
-    if (hasSubmitted) return;
+    if (hasSubmitted) return
     if (!state.deviceUuid || !questionId || !selectedOption) {
-      setError('Invalid vote data');
-      setLoading(false);
-      return;
+      setError('Invalid vote data')
+      setLoading(false)
+      return
     }
 
     async function submitAndFetchResults() {
-      setLoading(true);
-      setError(null);
+      setLoading(true)
+      setError(null)
 
       try {
         const voteResult = await submitVote(
           state.deviceUuid,
           questionId,
           selectedOption
-        );
-        setResult(voteResult);
+        )
+        setResult(voteResult)
         Animated.timing(fadeAnim, {
           toValue: 1,
           duration: 400,
           useNativeDriver: true,
-        }).start();
-        setHasSubmitted(true);
+        }).start()
+        setHasSubmitted(true)
       } catch (err: any) {
-        console.error('Vote failed:', err);
-        setError(err.message || 'Failed to submit vote');
+        console.error('Vote failed:', err)
+        setError(err.message || 'Failed to submit vote')
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     }
 
-    submitAndFetchResults();
-  }, [state.deviceUuid, questionId, selectedOption, hasSubmitted]);
+    submitAndFetchResults()
+  }, [state.deviceUuid, questionId, selectedOption, hasSubmitted])
 
   const handleNext = () => {
-    router.push('/question');
-  };
+    router.push('/question')
+  }
 
   const handleRetry = () => {
-    setHasSubmitted(false);
-    setLoading(true);
-    setError(null);
-  };
+    setHasSubmitted(false)
+    setLoading(true)
+    setError(null)
+  }
 
   if (loading) {
     return (
@@ -96,18 +104,21 @@ export default function ResultScreen() {
         <LoadingSpinner />
         <Text style={styles.loadingText}>Submitting your vote...</Text>
       </View>
-    );
+    )
   }
 
   if (error || !result) {
     return (
       <View style={styles.container}>
-        <ErrorState message={error || 'Vote submission failed'} onRetry={handleRetry} />
+        <ErrorState
+          message={error || 'Vote submission failed'}
+          onRetry={handleRetry}
+        />
       </View>
-    );
+    )
   }
 
-  const isOptionASelected = selectedOption === 'A';
+  const isOptionASelected = selectedOption === 'A'
 
   return (
     <View style={styles.container}>
@@ -119,35 +130,55 @@ export default function ResultScreen() {
         </View>
 
         <View style={styles.resultsContainer}>
-          <View style={[styles.resultCard, isOptionASelected && styles.selectedCard]}>
+          <View
+            style={[
+              styles.resultCard,
+              isOptionASelected && styles.selectedCard,
+            ]}>
             <View style={styles.resultHeader}>
               <Text style={styles.optionText}>{optionA}</Text>
               {isOptionASelected && <Text style={styles.checkmark}>✓</Text>}
             </View>
-            <Text style={styles.percentageText}>{result.option_a_percentage.toFixed(0)}%</Text>
+            <Text style={styles.percentageText}>
+              {result.option_a_percentage.toFixed(0)}%
+            </Text>
             <PercentageBar percentage={result.option_a_percentage} animated />
-            <Text style={styles.voteCount}>{result.option_a_votes.toLocaleString()} votes</Text>
+            <Text style={styles.voteCount}>
+              {result.option_a_votes.toLocaleString()} votes
+            </Text>
           </View>
 
-          <View style={[styles.resultCard, !isOptionASelected && styles.selectedCard]}>
+          <View
+            style={[
+              styles.resultCard,
+              !isOptionASelected && styles.selectedCard,
+            ]}>
             <View style={styles.resultHeader}>
               <Text style={styles.optionText}>{optionB}</Text>
               {!isOptionASelected && <Text style={styles.checkmark}>✓</Text>}
             </View>
-            <Text style={styles.percentageText}>{result.option_b_percentage.toFixed(0)}%</Text>
+            <Text style={styles.percentageText}>
+              {result.option_b_percentage.toFixed(0)}%
+            </Text>
             <PercentageBar percentage={result.option_b_percentage} animated />
-            <Text style={styles.voteCount}>{result.option_b_votes.toLocaleString()} votes</Text>
+            <Text style={styles.voteCount}>
+              {result.option_b_votes.toLocaleString()} votes
+            </Text>
           </View>
 
-          <Text style={styles.totalVotes}>{result.total_votes.toLocaleString()} total votes</Text>
+          <Text style={styles.totalVotes}>
+            {result.total_votes.toLocaleString()} total votes
+          </Text>
         </View>
       </Animated.View>
 
-      <View style={styles.buttonContainer}>
-        <Button title="Next Question" onPress={handleNext} />
+      <View style={styles.nextButtonWrapper}>
+        <Pressable style={styles.nextButton} onPress={handleNext}>
+          <Text style={styles.nextButtonText}>Next Question</Text>
+        </Pressable>
       </View>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -220,8 +251,32 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '500',
   },
-  buttonContainer: {
-    padding: theme.spacing.lg,
+  nextButtonWrapper: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingBottom: theme.spacing.lg,
+    paddingTop: theme.spacing.md,
+    backgroundColor: theme.colors.black,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: '#222',
+  },
+
+  nextButton: {
+    backgroundColor: theme.colors.white,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 12,
+    elevation: 10,
+  },
+
+  nextButtonText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: theme.colors.black,
   },
   loadingText: {
     fontSize: 16,
@@ -229,4 +284,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: theme.spacing.md,
   },
-});
+})
