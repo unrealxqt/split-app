@@ -4,6 +4,7 @@ import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect } from 'react'
 import NetInfo from '@react-native-community/netinfo'
+import { PostHogProvider } from 'posthog-react-native'
 
 function RootLayoutNav() {
   const { dispatch } = useApp()
@@ -38,8 +39,17 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   return (
-    <AppProvider>
-      <RootLayoutNav />
-    </AppProvider>
+    <PostHogProvider
+      apiKey="phc_dDqCkuCghhsDq3Ad71d6unoiTUB1Eq5XzUrEpEKDbz1"
+      options={{
+        host: 'https://eu.i.posthog.com',
+        enableSessionReplay: true,
+      }}
+      autocapture
+    >
+      <AppProvider>
+        <RootLayoutNav />
+      </AppProvider>
+    </PostHogProvider>
   )
 }

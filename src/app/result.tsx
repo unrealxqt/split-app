@@ -3,7 +3,6 @@ import {
   Text,
   StyleSheet,
   Animated,
-  Button,
   BackHandler,
   Pressable,
 } from 'react-native'
@@ -16,9 +15,11 @@ import { theme } from '@/constants/theme'
 import { useApp } from '@/context/app-context'
 import { submitVote } from '@/services/api'
 import { PercentageBar } from '@/components/percentage-bar'
+import { usePostHog } from 'posthog-react-native'
 
 export default function ResultScreen() {
   const router = useRouter()
+  const posthog = usePostHog()
   const params = useLocalSearchParams<{
     questionId: string
     questionText: string
@@ -70,6 +71,11 @@ export default function ResultScreen() {
           questionId,
           selectedOption
         )
+        posthog.capture('answered_question', {
+          question_id: questionId,
+          choice: selectedOption,
+          timestamp: Date.now(),
+        })
         setResult(voteResult)
         Animated.timing(fadeAnim, {
           toValue: 1,
@@ -133,8 +139,7 @@ export default function ResultScreen() {
             style={[
               styles.resultCard,
               isOptionASelected ? styles.selectedCard : styles.unselectedCard,
-            ]}
-          >
+            ]}>
             <View style={styles.resultHeader}>
               <Text style={styles.optionText}>{optionA}</Text>
             </View>
@@ -153,8 +158,7 @@ export default function ResultScreen() {
             style={[
               styles.resultCard,
               !isOptionASelected ? styles.selectedCard : styles.unselectedCard,
-            ]}
-          >
+            ]}>
             <View style={styles.resultHeader}>
               <Text style={styles.optionText}>{optionB}</Text>
             </View>
