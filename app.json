@@ -58,7 +58,15 @@
           }
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "split",
+          "organization": "unrealxqt"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

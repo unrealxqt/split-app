@@ -1,7 +1,8 @@
-import { View, Text, StyleSheet, Pressable } from 'react-native'
+import { View, Text, StyleSheet, Pressable, Button } from 'react-native'
 import { useRouter } from 'expo-router'
 import React from 'react'
 import { theme } from '@/constants/theme'
+import * as Sentry from '@sentry/react-native'
 
 export default function MenuScreen() {
   const router = useRouter()
@@ -14,6 +15,8 @@ export default function MenuScreen() {
       <Pressable style={styles.button} onPress={() => router.push('/question')}>
         <Text style={styles.buttonText}>Start Playing</Text>
       </Pressable>
+
+      <Button title='Try!' onPress={ () => { Sentry.captureException(new Error('First error')) }}/>
 
       <Pressable style={[styles.button, styles.historyButton]} onPress={() => router.push('/history')}>
         <Text style={[styles.buttonText, styles.historyButtonText]}>View Your History</Text>
