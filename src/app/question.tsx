@@ -17,9 +17,12 @@ import { getNextQuestion } from '@/services/api'
 import { ErrorState } from '@/components/error-state'
 import { useRouter } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import * as Sentry from '@sentry/react-native'
+import { usePostHog } from 'posthog-react-native'
 
 export default function QuestionScreen() {
   const router = useRouter()
+  const posthog = usePostHog()
   const { state } = useApp()
   const [question, setQuestion] = useState<Question | null>(null)
   const [loading, setLoading] = useState(true)
@@ -60,6 +63,7 @@ export default function QuestionScreen() {
         setQuestion(null)
       } else {
         setQuestion(nextQuestion)
+        posthog.capture('question_displayed')
         Animated.timing(fadeAnim, {
           toValue: 1,
           duration: 300,
@@ -68,6 +72,7 @@ export default function QuestionScreen() {
       }
     } catch (err) {
       console.error('Failed to fetch question:', err)
+      Sentry.captureException(err)
       setError('Failed to load question. Please check your connection.')
     } finally {
       setLoading(false)

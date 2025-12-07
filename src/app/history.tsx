@@ -4,6 +4,7 @@ import type { VoteHistoryItem } from '@/types'
 import { theme } from '@/constants/theme'
 import { useApp } from '@/context/app-context'
 import { getVoteHistory } from '@/services/api'
+import * as Sentry from '@sentry/react-native'
 
 export default function HistoryScreen() {
   const { state } = useApp()
@@ -17,6 +18,7 @@ export default function HistoryScreen() {
       const historyData = await getVoteHistory(state.deviceUuid)
       setHistory(historyData)
     } catch (error) {
+      Sentry.captureException(error)
       console.error('Failed to load history:', error)
     } finally {
       setLoading(false)

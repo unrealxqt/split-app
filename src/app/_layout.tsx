@@ -4,7 +4,7 @@ import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect } from 'react'
 import NetInfo from '@react-native-community/netinfo'
-import { PostHogProvider } from 'posthog-react-native'
+import { PostHogProvider, usePostHog } from 'posthog-react-native'
 import * as Sentry from '@sentry/react-native';
 
 function RootLayoutNav() {
@@ -27,11 +27,12 @@ function RootLayoutNav() {
   // spotlight: __DEV__,
 });
   const { dispatch } = useApp()
-
+  const posthog = usePostHog()
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
       dispatch({ type: 'SET_ONLINE_STATUS', payload: state.isConnected ?? false })
     })
+    posthog.capture('app_opened')
     return () => unsubscribe()
   }, [])
 

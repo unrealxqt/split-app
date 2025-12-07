@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, Alert, Button } from 'react-native';
 import { useRouter } from 'expo-router';
 import { theme } from '@/constants/theme'
 import { clearDeviceId } from '@/services/device-id'
+import * as Sentry from '@sentry/react-native'
 
 
 export default function SettingsScreen() {
@@ -22,6 +23,7 @@ export default function SettingsScreen() {
               Alert.alert('Reset complete', 'App will restart with new identity.');
               await Updates.reloadAsync();
             } catch (error) {
+              Sentry.captureException(error)
               Alert.alert('Error', 'Failed to reset device ID');
             }
           },

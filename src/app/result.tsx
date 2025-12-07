@@ -16,6 +16,7 @@ import { useApp } from '@/context/app-context'
 import { submitVote } from '@/services/api'
 import { PercentageBar } from '@/components/percentage-bar'
 import { usePostHog } from 'posthog-react-native'
+import * as Sentry from '@sentry/react-native'
 
 export default function ResultScreen() {
   const router = useRouter()
@@ -84,6 +85,7 @@ export default function ResultScreen() {
         }).start()
         setHasSubmitted(true)
       } catch (err: any) {
+        Sentry.captureException(err)
         setError(err.message || 'Failed to submit vote')
       } finally {
         setLoading(false)
