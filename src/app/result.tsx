@@ -78,7 +78,6 @@ export default function ResultScreen() {
         }).start()
         setHasSubmitted(true)
       } catch (err: any) {
-        console.error('Vote failed:', err)
         setError(err.message || 'Failed to submit vote')
       } finally {
         setLoading(false)
@@ -130,14 +129,14 @@ export default function ResultScreen() {
         </View>
 
         <View style={styles.resultsContainer}>
-          <View
+          <Animated.View
             style={[
               styles.resultCard,
-              isOptionASelected && styles.selectedCard,
-            ]}>
+              isOptionASelected ? styles.selectedCard : styles.unselectedCard,
+            ]}
+          >
             <View style={styles.resultHeader}>
               <Text style={styles.optionText}>{optionA}</Text>
-              {isOptionASelected && <Text style={styles.checkmark}>✓</Text>}
             </View>
             <Text style={styles.percentageText}>
               {result.option_a_percentage.toFixed(0)}%
@@ -148,16 +147,16 @@ export default function ResultScreen() {
                 {result.option_a_votes.toLocaleString()} votes
               </Text>
             )}
-          </View>
+          </Animated.View>
 
-          <View
+          <Animated.View
             style={[
               styles.resultCard,
-              !isOptionASelected && styles.selectedCard,
-            ]}>
+              !isOptionASelected ? styles.selectedCard : styles.unselectedCard,
+            ]}
+          >
             <View style={styles.resultHeader}>
               <Text style={styles.optionText}>{optionB}</Text>
-              {!isOptionASelected && <Text style={styles.checkmark}>✓</Text>}
             </View>
             <Text style={styles.percentageText}>
               {result.option_b_percentage.toFixed(0)}%
@@ -168,7 +167,7 @@ export default function ResultScreen() {
                 {result.option_b_votes.toLocaleString()} votes
               </Text>
             )}
-          </View>
+          </Animated.View>
 
           {result.total_votes >= 1000 && (
             <Text style={styles.totalVotes}>
@@ -211,19 +210,26 @@ const styles = StyleSheet.create({
     gap: theme.spacing.lg,
   },
   resultCard: {
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.borderRadius.medium,
-    padding: theme.spacing.lg,
-    borderWidth: 2,
-    borderColor: 'transparent',
+    padding: 20,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    backgroundColor: '#fff',
+    marginBottom: 16,
   },
   selectedCard: {
-    borderColor: theme.colors.black,
     borderWidth: 3,
+    borderColor: '#3B82F6',
+    transform: [{ scale: 1 }],
+    opacity: 1,
+  },
+  unselectedCard: {
+    transform: [{ scale: 0.96 }],
+    opacity: 0.75,
   },
   resultHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     marginBottom: theme.spacing.sm,
   },
@@ -232,11 +238,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: theme.colors.black,
     flex: 1,
-  },
-  checkmark: {
-    fontSize: 24,
-    color: theme.colors.black,
-    fontWeight: 'bold',
   },
   percentageText: {
     fontSize: 36,
@@ -265,7 +266,6 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#222',
   },
-
   nextButton: {
     backgroundColor: theme.colors.white,
     height: 64,
@@ -278,7 +278,6 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 10,
   },
-
   nextButtonText: {
     fontSize: 20,
     fontWeight: '700',
