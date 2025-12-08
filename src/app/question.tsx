@@ -19,8 +19,12 @@ import { useRouter } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Sentry from '@sentry/react-native'
 import { usePostHog } from 'posthog-react-native'
+import * as Haptics from 'expo-haptics'
+import { useHaptic } from '@/context/haptic-context'
 
 export default function QuestionScreen() {
+  const { enabled: hapticEnabled } = useHaptic()
+
   const router = useRouter()
   const posthog = usePostHog()
   const { state } = useApp()
@@ -28,7 +32,7 @@ export default function QuestionScreen() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const insets = useSafeAreaInsets()
-
+  const [streak, setStreak] = useState(0)
   const fadeAnim = useRef(new Animated.Value(0)).current
 
   const handleBackPress = () => {
@@ -85,16 +89,20 @@ export default function QuestionScreen() {
   }, [state.deviceUuid])
 
   const handleVote = (option: 'A' | 'B') => {
-    if (!question) return
+    if (hapticEnabled) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    }
+    setStreak(streak + 1)
 
     router.push({
       pathname: '/result',
       params: {
-        questionId: question.question_id,
-        questionText: question.question_text,
-        optionA: question.option_a,
-        optionB: question.option_b,
+        questionId: question?.question_id,
+        questionText: question?.question_text,
+        optionA: question?.option_a,
+        optionB: question?.option_b,
         selectedOption: option,
+        streak,
       },
     })
   }
@@ -103,21 +111,9 @@ export default function QuestionScreen() {
     router.push('/history')
   }
 
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <LoadingSpinner />
-      </View>
-    )
-  }
+  if (loading) return <LoadingSpinner />
 
-  if (error) {
-    return (
-      <View style={styles.container}>
-        <ErrorState message={error} onRetry={fetchQuestion} />
-      </View>
-    )
-  }
+  if (error) return <ErrorState message={error} onRetry={fetchQuestion} />
 
   if (!question) {
     return (
@@ -128,7 +124,7 @@ export default function QuestionScreen() {
             All answers have been submitted. Thank you for participating!
           </Text>
           <Pressable style={styles.bigButton} onPress={handleViewHistory}>
-            <Text style={styles.bigButtonText}>View Your History</Text>
+            <Text style={styles.bigButtonText}>View History</Text>
           </Pressable>
         </View>
       </View>
@@ -141,23 +137,45 @@ export default function QuestionScreen() {
         style={{
           flex: 1,
           opacity: fadeAnim,
+          transform: [
+            {
+              scale: fadeAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.95, 1],
+              }),
+            },
+          ],
           paddingBottom: insets.bottom + 16,
         }}>
+        <View style={styles.streakContainer}>
+          <Text style={styles.streakText}>🔥 Streak: {streak}</Text>
+        </View>
+
         <View style={styles.questionContainer}>
-          <Text style={styles.questionText} numberOfLines={2}>
-            {question.question_text}
-          </Text>
+          <Text style={styles.questionText}>{question.question_text}</Text>
         </View>
 
         <View style={styles.optionsWrapper}>
           <Pressable
-            style={[styles.optionContainer, styles.optionTop]}
+            style={({ pressed }) => [
+              styles.optionContainer,
+              pressed && {
+                transform: [{ scale: 0.96 }],
+                backgroundColor: '#e0e0e0',
+              },
+            ]}
             onPress={() => handleVote('A')}>
             <Text style={styles.optionText}>{question.option_a}</Text>
           </Pressable>
 
           <Pressable
-            style={[styles.optionContainer, styles.optionBottom]}
+            style={({ pressed }) => [
+              styles.optionContainer,
+              pressed && {
+                transform: [{ scale: 0.96 }],
+                backgroundColor: '#e0e0e0',
+              },
+            ]}
             onPress={() => handleVote('B')}>
             <Text style={styles.optionText}>{question.option_b}</Text>
           </Pressable>
@@ -168,15 +186,14 @@ export default function QuestionScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.black,
-  },
+  container: { flex: 1, backgroundColor: theme.colors.black },
+  streakContainer: { padding: theme.spacing.md, alignItems: 'center' },
+  streakText: { fontSize: 18, fontWeight: '600', color: '#FFD700' },
   questionContainer: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
+    flex: 2,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: theme.spacing.lg,
   },
   questionText: {
     fontSize: 28,
@@ -186,7 +203,7 @@ const styles = StyleSheet.create({
     lineHeight: 36,
   },
   optionsWrapper: {
-    flexGrow: 1,
+    flex: 3,
     justifyContent: 'space-evenly',
     paddingHorizontal: 16,
   },
@@ -203,8 +220,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  optionTop: {},
-  optionBottom: {},
   optionText: {
     fontSize: 28,
     fontWeight: '700',

@@ -1,22 +1,24 @@
-import { View, Text, StyleSheet, Pressable, Button } from 'react-native'
+import { View, Text, StyleSheet, Pressable } from 'react-native'
 import { useRouter } from 'expo-router'
 import React from 'react'
 import { theme } from '@/constants/theme'
-import * as Sentry from '@sentry/react-native'
+import { Ionicons } from '@expo/vector-icons'
 
 export default function MenuScreen() {
   const router = useRouter()
 
   return (
     <View style={styles.container}>
+      <Pressable style={styles.settingsButton} onPress={() => router.push('/settings')}>
+        <Ionicons name="settings-outline" size={28} color={theme.colors.white} />
+      </Pressable>
+
       <Text style={styles.title}>Split</Text>
       <Text style={styles.subtitle}>Make choices. See what others choose.</Text>
 
       <Pressable style={styles.button} onPress={() => router.push('/question')}>
         <Text style={styles.buttonText}>Start Playing</Text>
       </Pressable>
-
-      <Button title='Try!' onPress={ () => { Sentry.captureException(new Error('First error')) }}/>
 
       <Pressable style={[styles.button, styles.historyButton]} onPress={() => router.push('/history')}>
         <Text style={[styles.buttonText, styles.historyButtonText]}>View Your History</Text>
@@ -34,6 +36,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: theme.colors.black,
     paddingHorizontal: 24,
+  },
+  settingsButton: {
+    position: 'absolute',
+    top: 40, 
+    right: 24,
+    zIndex: 10,
   },
   title: {
     fontSize: 56,

@@ -44,3 +44,21 @@ export async function getVoteHistory(deviceUuid: string): Promise<VoteHistoryIte
   if (error) throw error;
   return data || [];
 }
+
+export async function setHapticFeedback(deviceUuid: string, enabled: boolean) {
+  const { error } = await supabase.rpc('set_haptic_feedback', {
+    p_device_uuid: deviceUuid,
+    p_enabled: enabled,
+  });
+  if (error) throw error;
+}
+
+export async function getDeviceSettings(deviceUuid: string) {
+  const { data, error } = await supabase
+    .from('device_ids')
+    .select('haptic_enabled')
+    .eq('device_uuid', deviceUuid)
+    .single();
+  if (error) throw error;
+  return data?.haptic_enabled ?? true;
+}

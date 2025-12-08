@@ -2,7 +2,7 @@
   "expo": {
     "name": "split-app",
     "slug": "split-app",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/android-icon-foreground.png",
     "scheme": "splitapp",
@@ -14,6 +14,9 @@
       "associatedDomains": [
         "applinks:splitapp.app"
       ]
+    },
+    "expo-router": {
+      "appRoot": "src/app"
     },
     "android": {
       "adaptiveIcon": {
@@ -71,6 +74,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "68cf90f4-90e6-4992-bd65-cee54355a85d"
+      }
     }
   }
 }
