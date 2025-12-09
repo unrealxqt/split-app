@@ -24,6 +24,7 @@ interface AppState {
   currentQuestion: Question | null
   isLoading: boolean
   hasStartedGame: boolean
+  streak: number
 }
 
 type AppAction =
@@ -32,6 +33,8 @@ type AppAction =
   | { type: 'SET_CURRENT_QUESTION'; payload: Question | null }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_HAS_STARTED_GAME'; payload: boolean }
+  | { type: 'INCREMENT_STREAK' }
+  | { type: 'RESET_STREAK' }
 
 interface AppContextType {
   state: AppState
@@ -52,6 +55,11 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
       return { ...state, isLoading: action.payload }
     case 'SET_HAS_STARTED_GAME':
       return { ...state, hasStartedGame: action.payload }
+    case 'INCREMENT_STREAK':
+      return { ...state, streak: state.streak + 1 }
+    case 'RESET_STREAK':
+      return { ...state, streak: 0 }
+
     default:
       return state
   }
@@ -65,6 +73,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     currentQuestion: null,
     isLoading: false,
     hasStartedGame: false,
+    streak: 0,
   })
 
   useEffect(() => {
