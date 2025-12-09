@@ -34,14 +34,26 @@ export default function SubmitQuestionScreen() {
       Alert.alert(
         'Submitted!',
         'Your question has been submitted for review. Thank you!',
-        [{ text: 'OK', onPress: () => {
-          setQuestionText('')
-          setOptionA('')
-          setOptionB('')
-        }}]
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              setQuestionText('')
+              setOptionA('')
+              setOptionB('')
+            },
+          },
+        ]
       )
     } catch (err: any) {
-      Alert.alert('Error', err.message || 'Failed to submit question')
+      if (err.message.includes('Submission limit reached')) {
+        Alert.alert(
+          'Limit reached',
+          'You can only submit 3 questions per day. Come back tomorrow!'
+        )
+      } else {
+        Alert.alert('Error', err.message || 'Failed to submit question')
+      }
     } finally {
       setLoading(false)
     }
@@ -51,20 +63,26 @@ export default function SubmitQuestionScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.black }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
-      >
+        style={{ flex: 1 }}>
         <ScrollView
           contentContainerStyle={{
             padding: 24,
             flexGrow: 1,
             justifyContent: 'center',
-          }}
-        >
-          <Text style={{ fontSize: 28, fontWeight: '700', color: theme.colors.white, marginBottom: 24 }}>
+          }}>
+          <Text
+            style={{
+              fontSize: 28,
+              fontWeight: '700',
+              color: theme.colors.white,
+              marginBottom: 24,
+            }}>
             Submit a Question
           </Text>
 
-          <Text style={{ color: theme.colors.gray, marginBottom: 8 }}>Question:</Text>
+          <Text style={{ color: theme.colors.gray, marginBottom: 8 }}>
+            Question:
+          </Text>
           <TextInput
             value={questionText}
             onChangeText={setQuestionText}
@@ -81,7 +99,9 @@ export default function SubmitQuestionScreen() {
             multiline
           />
 
-          <Text style={{ color: theme.colors.gray, marginBottom: 8 }}>Option A:</Text>
+          <Text style={{ color: theme.colors.gray, marginBottom: 8 }}>
+            Option A:
+          </Text>
           <TextInput
             value={optionA}
             onChangeText={setOptionA}
@@ -97,7 +117,9 @@ export default function SubmitQuestionScreen() {
             }}
           />
 
-          <Text style={{ color: theme.colors.gray, marginBottom: 8 }}>Option B:</Text>
+          <Text style={{ color: theme.colors.gray, marginBottom: 8 }}>
+            Option B:
+          </Text>
           <TextInput
             value={optionB}
             onChangeText={setOptionB}
@@ -128,9 +150,13 @@ export default function SubmitQuestionScreen() {
                 shadowOffset: { width: 0, height: 6 },
                 shadowRadius: 12,
                 elevation: 10,
-              }}
-            >
-              <Text style={{ fontSize: 18, fontWeight: '700', color: theme.colors.black }}>
+              }}>
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: '700',
+                  color: theme.colors.black,
+                }}>
                 Submit Question
               </Text>
             </Pressable>
