@@ -17,6 +17,7 @@ import { submitVote } from '@/services/api'
 import { PercentageBar } from '@/components/percentage-bar'
 import { usePostHog } from 'posthog-react-native'
 import * as Sentry from '@sentry/react-native'
+import { useInterstitialAd } from '@/services/interstitial-ad'
 
 type ResultParams = {
   question: string
@@ -30,11 +31,13 @@ export default function ResultScreen() {
   const { state } = useApp()
   const params = useLocalSearchParams<ResultParams>()
   const selectedOption = params.selectedOption
+  const { showAd } = useInterstitialAd()
 
   let question: Question | null = null
   try {
     question = params.question ? JSON.parse(params.question) : null
   } catch (err) {
+    Sentry.captureException(err)
     question = null
   }
 
@@ -96,9 +99,10 @@ export default function ResultScreen() {
     }
 
     submitAndFetchResults()
-  }, [state.deviceUuid, question, selectedOption, hasSubmitted])
+  }, [state.deviceUuid, question, selectedOption, hasSubmitted, fadeAnim, posthog])
 
   const handleNext = () => {
+    showAd()
     router.push('/question')
   }
 
