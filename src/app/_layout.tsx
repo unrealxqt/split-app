@@ -1,4 +1,4 @@
-// app/_layout.tsx
+import '@/sentry'
 import { AppProvider, useApp } from '@/context/app-context'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
@@ -7,31 +7,12 @@ import NetInfo from '@react-native-community/netinfo'
 import { PostHogProvider, usePostHog } from 'posthog-react-native'
 import * as Sentry from '@sentry/react-native'
 import { HapticProvider } from '@/context/haptic-context'
+import { initAdMob } from '@/services/admob'
 
 function RootLayoutNav() {
-  Sentry.init({
-    dsn: 'https://0bf4c4639de3dd903b64a2c0f3cc8524@o4510494581915648.ingest.de.sentry.io/4510494591746128',
-
-    // Adds more context data to events (IP address, cookies, user, etc.)
-    // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
-    sendDefaultPii: true,
-
-    // Enable Logs
-    enableLogs: true,
-
-    // Configure Session Replay
-    replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 1,
-    integrations: [
-      Sentry.mobileReplayIntegration(),
-      Sentry.feedbackIntegration(),
-    ],
-
-    // uncomment the line below to enable Spotlight (https://spotlightjs.com)
-    // spotlight: __DEV__,
-  })
   const { dispatch } = useApp()
   const posthog = usePostHog()
+
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
       dispatch({
@@ -41,6 +22,10 @@ function RootLayoutNav() {
     })
     posthog.capture('app_opened')
     return () => unsubscribe()
+  }, [])
+
+  useEffect(() => {
+    initAdMob()
   }, [])
 
   return (

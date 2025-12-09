@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router'
 import React from 'react'
 import { theme } from '@/constants/theme'
 import { Ionicons } from '@expo/vector-icons'
+import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads'
 
 export default function MenuScreen() {
   const router = useRouter()
@@ -29,6 +30,13 @@ export default function MenuScreen() {
       </Pressable>
 
       <Text style={styles.footer}>v0.1 • Enjoy responsibly 😉</Text>
+      <BannerAd
+        unitId={TestIds.BANNER}
+        size={BannerAdSize.FULL_BANNER}
+        requestOptions={{
+          requestNonPersonalizedAdsOnly: true,
+        }}
+      />
     </View>
   )
 }
