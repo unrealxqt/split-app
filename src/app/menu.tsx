@@ -24,6 +24,10 @@ export default function MenuScreen() {
         <Text style={[styles.buttonText, styles.historyButtonText]}>View Your History</Text>
       </Pressable>
 
+      <Pressable style={[styles.button, styles.historyButton]} onPress={() => router.push('/submit-question-screen')}>
+        <Text style={[styles.buttonText, styles.historyButtonText]}>Submit your own questions</Text>
+      </Pressable>
+
       <Text style={styles.footer}>v0.1 • Enjoy responsibly 😉</Text>
     </View>
   )

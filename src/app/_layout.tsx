@@ -58,6 +58,7 @@ function RootLayoutNav() {
         <Stack.Screen name="result" />
         <Stack.Screen name="history" />
         <Stack.Screen name="settings" />
+        <Stack.Screen name="submit-question-screen" />
       </Stack>
     </>
   )
