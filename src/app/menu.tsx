@@ -4,14 +4,22 @@ import React from 'react'
 import { theme } from '@/constants/theme'
 import { Ionicons } from '@expo/vector-icons'
 import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads'
+import { useAdFree } from '@/hooks/use-adfree'
 
 export default function MenuScreen() {
   const router = useRouter()
+  const { adFree, buyAdFree, restore } = useAdFree()
 
   return (
     <View style={styles.container}>
-      <Pressable style={styles.settingsButton} onPress={() => router.push('/settings')}>
-        <Ionicons name="settings-outline" size={28} color={theme.colors.white} />
+      <Pressable
+        style={styles.settingsButton}
+        onPress={() => router.push('/settings')}>
+        <Ionicons
+          name="settings-outline"
+          size={28}
+          color={theme.colors.white}
+        />
       </Pressable>
 
       <Text style={styles.title}>Split</Text>
@@ -21,22 +29,32 @@ export default function MenuScreen() {
         <Text style={styles.buttonText}>Start Playing</Text>
       </Pressable>
 
-      <Pressable style={[styles.button, styles.historyButton]} onPress={() => router.push('/history')}>
-        <Text style={[styles.buttonText, styles.historyButtonText]}>View Your History</Text>
+      <Pressable
+        style={[styles.button, styles.historyButton]}
+        onPress={() => router.push('/history')}>
+        <Text style={[styles.buttonText, styles.historyButtonText]}>
+          View Your History
+        </Text>
       </Pressable>
 
-      <Pressable style={[styles.button, styles.historyButton]} onPress={() => router.push('/submit-question-screen')}>
-        <Text style={[styles.buttonText, styles.historyButtonText]}>Submit your own questions</Text>
+      <Pressable
+        style={[styles.button, styles.historyButton]}
+        onPress={() => router.push('/submit-question-screen')}>
+        <Text style={[styles.buttonText, styles.historyButtonText]}>
+          Submit your own questions
+        </Text>
       </Pressable>
 
       <Text style={styles.footer}>v0.1 • Enjoy responsibly 😉</Text>
-      <BannerAd
-        unitId={TestIds.BANNER}
-        size={BannerAdSize.FULL_BANNER}
-        requestOptions={{
-          requestNonPersonalizedAdsOnly: true,
-        }}
-      />
+      {!adFree && (
+        <BannerAd
+          unitId={TestIds.BANNER}
+          size={BannerAdSize.FULL_BANNER}
+          requestOptions={{
+            requestNonPersonalizedAdsOnly: true,
+          }}
+        />
+      )}
     </View>
   )
 }
@@ -51,7 +69,7 @@ const styles = StyleSheet.create({
   },
   settingsButton: {
     position: 'absolute',
-    top: 40, 
+    top: 40,
     right: 24,
     zIndex: 10,
   },
