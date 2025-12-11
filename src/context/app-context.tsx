@@ -10,6 +10,9 @@ import { getOrCreateDeviceId } from '@/services/device-id'
 import { registerDevice } from '@/services/api'
 import * as Sentry from '@sentry/react-native'
 import { usePostHog } from 'posthog-react-native'
+import Purchases from 'react-native-purchases'
+import { initRevenueCat } from '@/services/revenuecat'
+import { initAdMob } from '@/services/admob'
 
 interface Question {
   question_id: string
@@ -76,26 +79,50 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     streak: 0,
   })
 
+  // App initialization: device ID, Sentry, analytics
   useEffect(() => {
-    async function initializeDevice() {
+    async function initializeApp() {
       try {
         const deviceUuid = await getOrCreateDeviceId()
         dispatch({ type: 'SET_DEVICE_UUID', payload: deviceUuid })
-        await registerDevice(deviceUuid)
-        console.log('Device initialized:', deviceUuid)
-        Sentry.setUser({
-          id: deviceUuid,
-          username: `device-${deviceUuid}`,
-        })
 
+        await registerDevice(deviceUuid)
+
+        Sentry.setUser({ id: deviceUuid, username: `device-${deviceUuid}` })
         posthog.identify(`device-${deviceUuid}`)
+
+        console.log('App initialized for device:', deviceUuid)
+        console.log('Sentry initialized for device:', deviceUuid)
+        console.log('Posthog initialized for device:', deviceUuid)
       } catch (error) {
         Sentry.captureException(error)
-        console.error('Failed to initialize device:', error)
+        console.error('Failed to initialize app:', error)
       }
     }
-    initializeDevice()
+
+    initializeApp()
+  }, [posthog])
+
+  const initializeRevenueCat = async (userId: string) => {
+    try {
+      initRevenueCat()
+      await Purchases.logIn(userId)
+      console.log('RevenueCat initialized for user:', userId)
+    } catch (error) {
+      Sentry.captureException(error)
+      console.error('RevenueCat initialization failed:', error)
+    }
+  }
+
+  useEffect(() => {
+    initAdMob()
   }, [])
+
+  useEffect(() => {
+    if (state.deviceUuid) {
+      initializeRevenueCat(state.deviceUuid)
+    }
+  }, [state.deviceUuid])
 
   return (
     <AppContext.Provider value={{ state, dispatch }}>

@@ -11,14 +11,18 @@
         "buildType": "apk"
       },
       "env": {
-        "SENTRY_UPLOAD_RELEASE": "false"
+        "APP_ENV": "development"
       }
     },
     "preview": {
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "distribution": "store",
+      "env": {
+        "APP_ENV": "production"
+      }
     }
   },
   "submit": {

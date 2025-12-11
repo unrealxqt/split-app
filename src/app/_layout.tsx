@@ -12,7 +12,6 @@ import { initAdMob } from '@/services/admob'
 function RootLayoutNav() {
   const { dispatch } = useApp()
   const posthog = usePostHog()
-
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
       dispatch({
