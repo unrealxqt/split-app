@@ -9,6 +9,7 @@ Sentry.init({
   environment: ENV,
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1,
+  tracesSampleRate: 0.25,
   integrations: [
     Sentry.mobileReplayIntegration(),
     Sentry.feedbackIntegration()

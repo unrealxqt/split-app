@@ -45,7 +45,14 @@ export default function MenuScreen() {
         </Text>
       </Pressable>
 
-      <Text style={styles.footer}>v0.1 • Enjoy responsibly 😉</Text>
+      {__DEV__ && !adFree && (
+        <Text style={{ color: 'yellow', marginTop: 20 }}>Ad Would Appear here</Text>
+      )}
+
+      {__DEV__ && (
+        <Text style={{ color: 'red', marginTop: 20 }}>DEV MODE</Text>
+      )}
+
       {!adFree && (
         <BannerAd
           unitId={TestIds.BANNER}
@@ -55,6 +62,7 @@ export default function MenuScreen() {
           }}
         />
       )}
+      <Text style={styles.footer}>v0.1 • Enjoy responsibly 😉</Text>
     </View>
   )
 }

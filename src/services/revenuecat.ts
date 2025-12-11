@@ -1,26 +1,10 @@
-// revenuecat.ts
 import Purchases from 'react-native-purchases'
+import Constants from 'expo-constants'
 
-const PRODUCT_ID = 'adfree'
-const ENTITLEMENT_ID = 'Split Pro'
+const apiKey = Constants.expoConfig?.extra?.EXPO_PUBLIC_REVENUECAT_API_KEY ?? process.env.EXPO_PUBLIC_REVENUECAT_API_KEY
 
 export function initRevenueCat() {
-  Purchases.configure({
-    apiKey: 'test_KDMQRRpPKjIXWrDbuqVemvnRPNg',
-  })
-}
+  if (!apiKey) throw new Error('Missing RevenueCat API key')
+  Purchases.configure({ apiKey })
 
-export async function isAdFreeUser(): Promise<boolean> {
-  const info = await Purchases.getCustomerInfo()
-  return info.entitlements.active[ENTITLEMENT_ID] !== undefined
-}
-
-export async function purchaseAdFree(): Promise<boolean> {
-  const { customerInfo } = await Purchases.purchaseProduct(PRODUCT_ID)
-  return customerInfo.entitlements.active[ENTITLEMENT_ID] !== undefined
-}
-
-export async function restorePurchases(): Promise<boolean> {
-  const customerInfo = await Purchases.restorePurchases()
-  return customerInfo.entitlements.active[ENTITLEMENT_ID] !== undefined
 }

@@ -87,8 +87,6 @@ export default ({ config }) => ({
     ...config.extra,
     router: {},
     eas: { projectId: "68cf90f4-90e6-4992-bd65-cee54355a85d" },
-    SUPABASE_URL: process.env.SUPABASE_URL,
-    SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
     APP_ENV: process.env.APP_ENV || "development",
   },
 });

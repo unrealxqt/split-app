@@ -11,11 +11,7 @@
         "buildType": "apk"
       },
       "env": {
-        "APP_ENV": "development",
-        "SENTRY_UPLOAD_RELEASE": "true",
-        "SENTRY_AUTH_TOKEN": "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",
-        "SUPABASE_URL": "https://ngdsjlgqstztjjqfoobw.supabase.co",
-        "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5nZHNqbGdxc3R6dGpqcWZvb2J3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ5Mjg3MzEsImV4cCI6MjA4MDUwNDczMX0.nTVVFwDatJbIg7J0T_GoS_LcpawplDoK0XYDRiHP_lE"
+        "APP_ENV": "development"
       }
     },
     "preview": {
@@ -25,11 +21,7 @@
       "autoIncrement": true,
       "distribution": "store",
       "env": {
-        "APP_ENV": "production",
-        "SENTRY_UPLOAD_RELEASE": "true",
-        "SENTRY_AUTH_TOKEN": "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",
-        "SUPABASE_URL": "https://tmbevmiwoaevcofouqnp.supabase.co",
-        "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtYmV2bWl3b2FldmNvZm91cW5wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzNjE3NzIsImV4cCI6MjA4MDkzNzc3Mn0.uXNMok55KInGmkmVGxed0P5BE4RgpZohUEVSD6sqLmI"
+        "APP_ENV": "production"
       }
     }
   },
