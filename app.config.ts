@@ -1,3 +1,6 @@
+import fs from "fs";
+import path from "path";
+
 const IS_DEV = process.env.APP_ENV === "development";
 
 const getUniqueBundleIdentifier = () => {
@@ -8,11 +11,20 @@ const getAppName = () => {
   return IS_DEV ? "split-app-dev" : "split-app";
 };
 
+const versionFile = path.join(__dirname, "version.txt");
+
+function getVersion(): string {
+  if (fs.existsSync(versionFile)) {
+    return fs.readFileSync(versionFile, "utf8").trim();
+  }
+  return "0.1.0";
+}
+
 export default ({ config }) => ({
   ...config,
   name: getAppName(),
   slug: "split-app",
-  version: "0.2.0",
+  version: getVersion(),
   orientation: "portrait",
   icon: "./assets/images/android-icon-foreground.png",
   scheme: "splitapp",
