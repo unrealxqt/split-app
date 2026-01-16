@@ -102,7 +102,7 @@ export default function ResultScreen() {
   }, [state.deviceUuid, question, selectedOption, hasSubmitted, fadeAnim, posthog])
 
   const handleNext = () => {
-    //showAd()
+    showAd()
     router.push('/question')
   }
 
