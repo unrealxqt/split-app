@@ -99,11 +99,6 @@ export default function QuestionScreen() {
           ],
           paddingBottom: insets.bottom + 16,
         }}>
-        <View style={{ padding: 16, alignItems: 'center' }}>
-          <Text style={{ fontSize: 18, fontWeight: '600', color: '#FFD700' }}>
-            🔥 Streak: {state.streak}
-          </Text>
-        </View>
 
         <View
           style={{

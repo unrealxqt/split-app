@@ -5,9 +5,11 @@ import { theme } from '@/constants/theme'
 import { Ionicons } from '@expo/vector-icons'
 import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads'
 import { useAdFree } from '@/hooks/use-adfree'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function MenuScreen() {
   const router = useRouter()
+  const insets = useSafeAreaInsets()
   const { adFree, buyAdFree, restore } = useAdFree()
 
   return (
@@ -46,12 +48,12 @@ export default function MenuScreen() {
       </Pressable>
 
       {__DEV__ && !adFree && (
-        <Text style={{ color: 'yellow', marginTop: 20 }}>Ad Would Appear here</Text>
+        <Text style={{ color: 'yellow', marginTop: 20 }}>
+          Ad Would Appear here
+        </Text>
       )}
 
-      {__DEV__ && (
-        <Text style={{ color: 'red', marginTop: 20 }}>DEV MODE</Text>
-      )}
+      {__DEV__ && <Text style={{ color: 'red', marginTop: 20 }}>DEV MODE</Text>}
 
       {!adFree && (
         <BannerAd
@@ -62,7 +64,9 @@ export default function MenuScreen() {
           }}
         />
       )}
-      <Text style={styles.footer}>v0.1 • Enjoy responsibly 😉</Text>
+      <Text style={[styles.footer, { bottom: insets.bottom + 16 }]}>
+        v0.1 • Enjoy responsibly 😉
+      </Text>
     </View>
   )
 }

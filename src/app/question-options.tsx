@@ -1,6 +1,7 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import React from 'react'
 import { theme } from '@/constants/theme'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 interface Props {
   optionA: string
@@ -9,20 +10,26 @@ interface Props {
 }
 
 export const QuestionOptions = ({ optionA, optionB, onVote }: Props) => {
+  const insets = useSafeAreaInsets()
+
   const renderOption = (label: string, option: 'A' | 'B') => (
     <Pressable
       style={({ pressed }) => [
         styles.optionContainer,
         pressed && { transform: [{ scale: 0.96 }], backgroundColor: '#e0e0e0' },
       ]}
-      onPress={() => onVote(option)}
-    >
+      onPress={() => onVote(option)}>
       <Text style={styles.optionText}>{label}</Text>
     </Pressable>
   )
 
   return (
-    <View style={styles.optionsWrapper}>
+    <View
+      style={[
+        styles.optionsWrapper,
+        { paddingBottom: insets.bottom + 8 },
+      ]}
+    >
       {renderOption(optionA, 'A')}
       {renderOption(optionB, 'B')}
     </View>
@@ -30,7 +37,11 @@ export const QuestionOptions = ({ optionA, optionB, onVote }: Props) => {
 }
 
 const styles = StyleSheet.create({
-  optionsWrapper: { flex: 3, justifyContent: 'space-evenly', paddingHorizontal: 16 },
+  optionsWrapper: {
+    flex: 3,
+    justifyContent: 'space-evenly',
+    paddingHorizontal: 16,
+  },
   optionContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -44,5 +55,11 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  optionText: { fontSize: 28, fontWeight: '700', color: theme.colors.black, textAlign: 'center', paddingHorizontal: 16 },
+  optionText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: theme.colors.black,
+    textAlign: 'center',
+    paddingHorizontal: 16,
+  },
 })
