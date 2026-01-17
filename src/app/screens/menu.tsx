@@ -16,7 +16,7 @@ export default function MenuScreen() {
     <View style={styles.container}>
       <Pressable
         style={styles.settingsButton}
-        onPress={() => router.push('/settings')}>
+        onPress={() => router.push('/screens/settings')}>
         <Ionicons
           name="settings-outline"
           size={28}
@@ -27,7 +27,7 @@ export default function MenuScreen() {
       <Text style={styles.title}>Split</Text>
       <Text style={styles.subtitle}>Make choices. See what others choose.</Text>
 
-      <Pressable style={styles.button} onPress={() => router.push('/question')}>
+      <Pressable style={styles.button} onPress={() => router.push('/screens/question')}>
         <Text style={styles.buttonText}>Start Playing</Text>
       </Pressable>
 
