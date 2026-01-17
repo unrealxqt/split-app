@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { Animated } from 'react-native'
+import { useEffect, useRef, useState, useCallback } from 'react'
+import { Animated, AppState } from 'react-native'
 import { getNextQuestion } from '../services/api'
 import type { Question } from '../services/api'
 import * as Sentry from '@sentry/react-native'
@@ -12,6 +12,8 @@ export function useQuestionQueue(deviceUuid: string | null) {
   const [error, setError] = useState<string | null>(null)
   const fadeAnim = useRef(new Animated.Value(0)).current
   const posthog = usePostHog()
+  const appState = useRef(AppState.currentState)
+  const questionIndex = useRef(0)
 
   const animateIn = () => {
     fadeAnim.setValue(0)
@@ -45,7 +47,13 @@ export function useQuestionQueue(deviceUuid: string | null) {
       setNext(second)
 
       if (first) {
-        posthog.capture('question_displayed')
+        questionIndex.current = 0
+        posthog.capture('question_displayed', {
+          question_id: first.question_id,
+          question_index: questionIndex.current,
+          deviceUuid,
+          timestamp: Date.now(),
+        })
         animateIn()
       }
     } catch (e) {
@@ -60,15 +68,40 @@ export function useQuestionQueue(deviceUuid: string | null) {
     if (!next) return
     setCurrent(next)
     setNext(null)
-    posthog.capture('question_displayed')
+    questionIndex.current += 1
+    posthog.capture('question_displayed', {
+      question_id: next?.question_id,
+      question_index: questionIndex.current,
+      deviceUuid,
+      timestamp: Date.now(),
+    })
     animateIn()
     preloadNext()
   }
 
+  const reportQuestionLeft = useCallback(() => {
+    if (!current || !deviceUuid) return
+    posthog.capture('question_left', {
+      question_id: current.question_id,
+      question_index: questionIndex.current,
+      deviceUuid,
+      timestamp: Date.now(),
+    })
+  }, [current, deviceUuid, posthog])
 
   useEffect(() => {
     loadInitial()
   }, [deviceUuid])
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (appState.current === 'active' && nextAppState.match(/inactive|background/)) {
+        reportQuestionLeft()
+      }
+      appState.current = nextAppState
+    })
+    return () => subscription.remove()
+  }, [reportQuestionLeft])
 
   return {
     question: current,
@@ -76,5 +109,7 @@ export function useQuestionQueue(deviceUuid: string | null) {
     error,
     fadeAnim,
     advance,
+    reportQuestionLeft,
+    questionIndex: questionIndex.current,
   }
 }
