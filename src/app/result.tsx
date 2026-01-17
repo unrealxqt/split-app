@@ -24,6 +24,7 @@ type ResultParams = {
   question: string
   selectedOption: 'A' | 'B'
   streak: string
+  advance?: '1'
 }
 
 export default function ResultScreen() {
@@ -50,6 +51,12 @@ export default function ResultScreen() {
 
   const fadeAnim = useRef(new Animated.Value(0)).current
 
+  // Animated values for progress bar
+  const animA = useRef(new Animated.Value(0)).current
+  const animB = useRef(new Animated.Value(0)).current
+  const [displayPercentA, setDisplayPercentA] = useState(0)
+  const [displayPercentB, setDisplayPercentB] = useState(0)
+
   const handleBackPress = () => {
     router.replace('/menu')
     return true
@@ -65,6 +72,7 @@ export default function ResultScreen() {
     }, [])
   )
 
+  // Submit vote and fetch results
   useEffect(() => {
     if (hasSubmitted) return
     if (!state.deviceUuid || !question || !selectedOption) {
@@ -89,12 +97,31 @@ export default function ResultScreen() {
           timestamp: Date.now(),
         })
         setResult(voteResult)
+        setHasSubmitted(true)
+
+        // Animate fade-in
         Animated.timing(fadeAnim, {
           toValue: 1,
           duration: 400,
           useNativeDriver: true,
         }).start()
-        setHasSubmitted(true)
+
+        // Animate percentage bars
+        animA.setValue(0)
+        animB.setValue(0)
+        animA.addListener(({ value }) => setDisplayPercentA(value))
+        animB.addListener(({ value }) => setDisplayPercentB(value))
+
+        Animated.timing(animA, {
+          toValue: voteResult.option_a_percentage,
+          duration: 600,
+          useNativeDriver: false,
+        }).start()
+        Animated.timing(animB, {
+          toValue: voteResult.option_b_percentage,
+          duration: 600,
+          useNativeDriver: false,
+        }).start()
       } catch (err: any) {
         Sentry.captureException(err)
         setError(err.message || 'Failed to submit vote')
@@ -110,12 +137,17 @@ export default function ResultScreen() {
     selectedOption,
     hasSubmitted,
     fadeAnim,
+    animA,
+    animB,
     posthog,
   ])
 
   const handleNext = () => {
     showAd()
-    router.push('/question')
+    router.replace({
+      pathname: '/question',
+      params: { advance: '1' },
+    })
   }
 
   const handleRetry = () => {
@@ -149,7 +181,6 @@ export default function ResultScreen() {
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
-
         <View style={styles.questionContainer}>
           <Text style={styles.questionText} numberOfLines={2}>
             {question?.question_text}
@@ -157,7 +188,7 @@ export default function ResultScreen() {
         </View>
 
         <View style={styles.resultsContainer}>
-          <Animated.View
+          <View
             style={[
               styles.resultCard,
               isOptionASelected ? styles.selectedCard : styles.unselectedCard,
@@ -166,17 +197,17 @@ export default function ResultScreen() {
               <Text style={styles.optionText}>{question?.option_a}</Text>
             </View>
             <Text style={styles.percentageText}>
-              {result.option_a_percentage.toFixed(0)}%
+              {Math.round(displayPercentA)}%
             </Text>
-            <PercentageBar percentage={result.option_a_percentage} animated />
+            <PercentageBar percentage={displayPercentA} animated />
             {result.option_a_votes >= 1000 && (
               <Text style={styles.voteCount}>
                 {result.option_a_votes.toLocaleString()} votes
               </Text>
             )}
-          </Animated.View>
+          </View>
 
-          <Animated.View
+          <View
             style={[
               styles.resultCard,
               !isOptionASelected ? styles.selectedCard : styles.unselectedCard,
@@ -185,15 +216,15 @@ export default function ResultScreen() {
               <Text style={styles.optionText}>{question?.option_b}</Text>
             </View>
             <Text style={styles.percentageText}>
-              {result.option_b_percentage.toFixed(0)}%
+              {Math.round(displayPercentB)}%
             </Text>
-            <PercentageBar percentage={result.option_b_percentage} animated />
+            <PercentageBar percentage={displayPercentB} animated />
             {result.option_b_votes >= 1000 && (
               <Text style={styles.voteCount}>
                 {result.option_b_votes.toLocaleString()} votes
               </Text>
             )}
-          </Animated.View>
+          </View>
 
           {result.total_votes >= 1000 && (
             <Text style={styles.totalVotes}>
@@ -204,10 +235,8 @@ export default function ResultScreen() {
       </Animated.View>
 
       <View
-        style={[
-          styles.nextButtonWrapper,
-          { paddingBottom: insets.bottom + 16 },
-        ]}>
+        style={[styles.nextButtonWrapper, { paddingBottom: insets.bottom + 16 }]}
+      >
         <Pressable style={styles.nextButton} onPress={handleNext}>
           <Text style={styles.nextButtonText}>Next Question</Text>
         </Pressable>
@@ -219,8 +248,6 @@ export default function ResultScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.black },
   content: { flex: 1, padding: theme.spacing.lg },
-  streakContainer: { alignItems: 'center', marginBottom: theme.spacing.md },
-  streakText: { fontSize: 18, fontWeight: '600', color: '#FFD700' },
   questionContainer: { alignItems: 'center', marginBottom: theme.spacing.xl },
   questionText: {
     fontSize: 20,
@@ -238,73 +265,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     marginBottom: 16,
   },
-  selectedCard: {
-    borderWidth: 3,
-    borderColor: '#3B82F6',
-    transform: [{ scale: 1 }],
-    opacity: 1,
-  },
+  selectedCard: { borderWidth: 3, borderColor: '#3B82F6', transform: [{ scale: 1 }], opacity: 1 },
   unselectedCard: { transform: [{ scale: 0.96 }], opacity: 0.75 },
-  resultHeader: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    marginBottom: theme.spacing.sm,
-  },
-  optionText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: theme.colors.black,
-    flex: 1,
-  },
-  percentageText: {
-    fontSize: 36,
-    fontWeight: '700',
-    color: theme.colors.black,
-    marginBottom: theme.spacing.xs,
-    textAlign: 'center',
-  },
-  voteCount: {
-    fontSize: 14,
-    color: theme.colors.gray,
-    textAlign: 'center',
-    marginTop: theme.spacing.xs,
-  },
-  totalVotes: {
-    fontSize: 16,
-    color: theme.colors.gray,
-    textAlign: 'center',
-    fontWeight: '500',
-  },
-  nextButtonWrapper: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.lg,
-    paddingTop: theme.spacing.md,
-    backgroundColor: theme.colors.black,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#222',
-  },
-  nextButton: {
-    backgroundColor: theme.colors.white,
-    height: 64,
-    borderRadius: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 12,
-    elevation: 10,
-  },
-  nextButtonText: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: theme.colors.black,
-  },
-  loadingText: {
-    fontSize: 16,
-    color: theme.colors.gray,
-    textAlign: 'center',
-    marginTop: theme.spacing.md,
-  },
+  resultHeader: { flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', marginBottom: theme.spacing.sm },
+  optionText: { fontSize: 16, fontWeight: '500', color: theme.colors.black, flex: 1 },
+  percentageText: { fontSize: 36, fontWeight: '700', color: theme.colors.black, marginBottom: theme.spacing.xs, textAlign: 'center' },
+  voteCount: { fontSize: 14, color: theme.colors.gray, textAlign: 'center', marginTop: theme.spacing.xs },
+  totalVotes: { fontSize: 16, color: theme.colors.gray, textAlign: 'center', fontWeight: '500' },
+  nextButtonWrapper: { paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.md, backgroundColor: theme.colors.black, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#222' },
+  nextButton: { backgroundColor: theme.colors.white, height: 64, borderRadius: 32, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.3, shadowOffset: { width: 0, height: 6 }, shadowRadius: 12, elevation: 10 },
+  nextButtonText: { fontSize: 20, fontWeight: '700', color: theme.colors.black },
+  loadingText: { fontSize: 16, color: theme.colors.gray, textAlign: 'center', marginTop: theme.spacing.md },
 })
