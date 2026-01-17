@@ -16,7 +16,7 @@ export default function MenuScreen() {
     <View style={styles.container}>
       <Pressable
         style={styles.settingsButton}
-        onPress={() => router.push('/settings')}>
+        onPress={() => router.push('/screens/settings')}>
         <Ionicons
           name="settings-outline"
           size={28}
