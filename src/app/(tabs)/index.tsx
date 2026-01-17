@@ -17,13 +17,13 @@ export default function WelcomeScreen() {
   // If user already started game, go to /menu automatically
   useEffect(() => {
     if (state.hasStartedGame && ready) {
-      router.replace('/menu')
+      router.replace('/screens/menu')
     }
   }, [state.hasStartedGame, ready])
 
   const handleGetStarted = () => {
     dispatch({ type: 'SET_HAS_STARTED_GAME', payload: true })
-    router.replace('/menu')
+    router.replace('/screens/menu')
   }
 
   return (

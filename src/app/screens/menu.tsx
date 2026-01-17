@@ -27,7 +27,7 @@ export default function MenuScreen() {
       <Text style={styles.title}>Split</Text>
       <Text style={styles.subtitle}>Make choices. See what others choose.</Text>
 
-      <Pressable style={styles.button} onPress={() => router.push('/question')}>
+      <Pressable style={styles.button} onPress={() => router.push('/screens/question')}>
         <Text style={styles.buttonText}>Start Playing</Text>
       </Pressable>
 

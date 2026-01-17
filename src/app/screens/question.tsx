@@ -14,7 +14,7 @@ import { useQuestionQueue } from '@/hooks/use-question'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import * as Haptics from 'expo-haptics'
 import { theme } from '@/constants/theme'
-import { QuestionOptions } from './question-options'
+import { QuestionOptions } from '../question-options'
 
 export default function QuestionScreen() {
   const { state, dispatch } = useApp()
@@ -33,7 +33,7 @@ export default function QuestionScreen() {
   }, [params.advance])
 
   const handleBackPress = useCallback(() => {
-    router.replace('/menu')
+    router.replace('/screens/menu')
     return true
   }, [])
   useFocusEffect(() => {
@@ -50,7 +50,7 @@ export default function QuestionScreen() {
 
     if (question && state.deviceUuid) {
       router.replace({
-        pathname: '/result',
+        pathname: '/screens/result',
         params: {
           question: JSON.stringify(question),
           selectedOption: option,
